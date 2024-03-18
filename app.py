@@ -2,7 +2,7 @@
 import palmerpenguins as pp
 import plotly.express as px
 import seaborn as sns
-from shiny import render
+from shiny import reactive, render
 from shiny.express import input, ui
 from shinywidgets import render_plotly, render_widget
 
@@ -32,9 +32,9 @@ with ui.sidebar(open="open"):
     # Filter Species with Checkbox
     ui.input_checkbox_group(
         "checked",
-        "Select Option(s)",
-        ["Option_a", "Option_b_", "Option_c"],
-        selected="Option_a",
+        "Select Species",
+        ["Adelie", "Gentoo", "Chinstrap"],
+        selected="Adelie",
         inline=True
     )
 
@@ -92,3 +92,9 @@ with ui.card(full_screen=True):
                           labels = {'year': 'Year of Birth',
                                    'body_mass_g': 'Weight (g)'}
                          )
+
+
+# Add Reactive Calculation
+@reactive.calc
+def filtered_data():
+    return penguins_df
