@@ -54,17 +54,17 @@ with ui.layout_columns():
     # Data Table
     @render.data_frame
     def penguins_dt():
-        return render.DataTable(penguins_df)
+        return render.DataTable(filtered_data())
 
     # Data Grid
     @render.data_frame
     def penguins_dg():
-        return render.DataGrid(penguins_df)
+        return render.DataGrid(filtered_data())
     
     # Histogram with Plotly
     @render_widget
     def plotly_histogram():
-        return px.histogram(data_frame = penguins_df,
+        return px.histogram(data_frame = filtered_data(),
                            x = input.field(),
                            nbins = input.num_bins_plotly()
                            )
@@ -72,7 +72,7 @@ with ui.layout_columns():
     # Histogram with Seaborn
     @render.plot(alt = 'Seaborn Histogram of Palmers Penguins')
     def sns_histogram():
-        return sns.histplot(data = penguins_df,
+        return sns.histplot(data = filtered_data(),
                             x = input.field(),
                             bins = input.num_bins_sns()
                            )
@@ -84,7 +84,7 @@ with ui.card(full_screen=True):
     # Scatterplot with Plotly
     @render_plotly
     def plotly_scatterplot():
-        return px.scatter(data_frame = penguins_df,
+        return px.scatter(data_frame = filtered_data(),
                           x = 'year',
                           y = 'body_mass_g',
                           color = 'species',
