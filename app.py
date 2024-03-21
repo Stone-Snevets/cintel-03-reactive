@@ -1,8 +1,9 @@
+
 # Imports
 import palmerpenguins as pp
 import plotly.express as px
 import seaborn as sns
-from shiny import reactive, render
+from shiny import reactive, render, req
 from shiny.express import input, ui
 from shinywidgets import render_plotly, render_widget
 
@@ -31,7 +32,7 @@ with ui.sidebar(open="open"):
 
     # Filter Species with Checkbox
     ui.input_checkbox_group(
-        "checked",
+        "checked_species",
         "Select Species",
         ["Adelie", "Gentoo", "Chinstrap"],
         selected="Adelie",
@@ -44,7 +45,7 @@ with ui.sidebar(open="open"):
     # Add in Hyperlink
     ui.a(
         "GitHub Repository",
-        href="https://github.com/Stone-Snevets/cintel-02-data",
+        href="https://github.com/Stone-Snevets/cintel-03-reactive",
         target="_blank"
     )
 
@@ -97,4 +98,8 @@ with ui.card(full_screen=True):
 # Add Reactive Calculation
 @reactive.calc
 def filtered_data():
-    return penguins_df
+    # Make sure at least one species is selected
+    req(input.checked_species())
+    # Return User's Species Selection
+    select_species = penguins_df['species'].isin(input.checked_species())
+    return penguins_df[select_species]
