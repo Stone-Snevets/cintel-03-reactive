@@ -1,4 +1,3 @@
-
 # Imports
 import palmerpenguins as pp
 import plotly.express as px
@@ -25,44 +24,64 @@ with ui.sidebar(open="open"):
                                                         'year'])
 
     # Create Numeric Input
+    #-> Number of Bins for Plotly Histogram
     ui.input_numeric("num_bins_plotly", "Select Number of Plotly Bins:", 20)
 
-    # Create Slider for number of Seaborn bins
+    # Create Slider
+    #-> Number of Bins for Seaborn Histogram
     ui.input_slider("num_bins_sns", "Select Number of Seaborn Bins", 10, 100, 20)
 
-    # Filter Species with Checkbox
+    # Create Checkboxes
+    #-> Filter Species
     ui.input_checkbox_group(
         "checked_species",
         "Select Species",
-        ["Adelie", "Gentoo", "Chinstrap"],
+        ["Adelie", "Chinstrap", "Gentoo"],
         selected="Adelie",
+        inline=True
+    )
+    #-> Filter Island
+    ui.input_checkbox_group(
+        'checked_island',
+        'Select Island',
+        ['Biscoe', 'Dream', 'Torgersen'],
+        selected='Biscoe',
+        inline=True
+    )
+    #-> Filter Gender
+    ui.input_checkbox_group(
+        'checked_gender',
+        'Select Gender',
+        ['female', 'male'],
+        selected = 'female',
         inline=True
     )
 
     # Add in Horizontal Rule
     ui.hr()
 
-    # Add in Hyperlink
+    # Add in Hyperlink to GitHub Repository
     ui.a(
         "GitHub Repository",
         href="https://github.com/Stone-Snevets/cintel-03-reactive",
         target="_blank"
     )
 
-# Layout multiple columns
+
+# Generate Output Layout having Multiple Columns
 with ui.layout_columns():
 
-    # Data Table
+    # Create Data Table
     @render.data_frame
     def penguins_dt():
         return render.DataTable(filtered_data())
 
-    # Data Grid
+    # Create Data Grid
     @render.data_frame
     def penguins_dg():
         return render.DataGrid(filtered_data())
     
-    # Histogram with Plotly
+    # Create Plotly Histogram
     @render_widget
     def plotly_histogram():
         return px.histogram(data_frame = filtered_data(),
@@ -70,7 +89,7 @@ with ui.layout_columns():
                            nbins = input.num_bins_plotly()
                            )
 
-    # Histogram with Seaborn
+    # Create Seaborn Histogram
     @render.plot(alt = 'Seaborn Histogram of Palmers Penguins')
     def sns_histogram():
         return sns.histplot(data = filtered_data(),
@@ -78,11 +97,12 @@ with ui.layout_columns():
                             bins = input.num_bins_sns()
                            )
 
-# Create a Card for Scatterplot
+
+# Generate a Card for Scatterplot
 with ui.card(full_screen=True):
     ui.card_header('Plotly Scatterplot: Species')
     
-    # Scatterplot with Plotly
+    # Create Scatterplot
     @render_plotly
     def plotly_scatterplot():
         return px.scatter(data_frame = filtered_data(),
@@ -100,6 +120,17 @@ with ui.card(full_screen=True):
 def filtered_data():
     # Make sure at least one species is selected
     req(input.checked_species())
-    # Return User's Species Selection
+    # Make sure at least one island is selected
+    req(input.checked_island())
+    # Make sure at least one gender is selected
+    req(input.checked_gender())
+    
+    # Select Species from Penguins Dataframe
     select_species = penguins_df['species'].isin(input.checked_species())
-    return penguins_df[select_species]
+    # Select Island from Penguins Dataframe
+    select_island = penguins_df['island'].isin(input.checked_island())
+    # Select Gender from Penguins Dataframe
+    select_gender = penguins_df['sex'].isin(input.checked_gender())
+
+    # Return Filtered Dataframe
+    return penguins_df[select_species & select_island & select_gender]
